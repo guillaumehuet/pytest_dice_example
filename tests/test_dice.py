@@ -1,24 +1,40 @@
 import pytest
+import random
+import statistics
 
 @pytest.mark.parametrize('n', range(1, 7))
-def test_dice_deterministic(n):
+def test_dice_init_deterministic(n):
   from context import dice
   d = dice.Dice(n)
-  assert str(d) == str(n)
+  assert d.value == n
 
 @pytest.mark.parametrize('n', [-42, -1, 0, 7, 42])
-def test_dice_not_valid(n):
+def test_dice_init_invalid(n):
   from context import dice
   with pytest.raises(ValueError):
     dice.Dice(n)
 
-def test_dice_seeded():
+def test_dice_init_rng():
   from context import dice
-  import random
-  random.seed(0)
-  expected = tuple(random.randint(1, 6) for _ in range(10))
-  random.seed(0)
+  n = random.Random(0).randint(1, 6)
+  d = dice.Dice(rng = random.Random(0))
+  assert d.value == n
+
+@pytest.mark.parametrize('n', range(1, 7))
+def test_dice_repr(n):
+  from context import dice
   d = dice.Dice()
-  for e in expected:
-    assert(str(d) == str(e))
+  d.value = n
+  assert str(d) == str(n)
+
+def test_dice_fairness():
+  from context import dice
+  results = []
+  d = dice.Dice(rng = random.Random(42))
+  for _ in range(10_000):
+    results.append(d.value)
     d.roll()
+  assert min(results) >= 1
+  assert max(results) <= 6
+  assert 6 < statistics.mean(results)*2 < 8          # perfect dice mean is 7/2
+  assert 104 < statistics.variance(results)*36 < 106 # perfect dice variance is 105/36
