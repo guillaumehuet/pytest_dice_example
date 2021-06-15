@@ -4,31 +4,31 @@ import statistics
 
 @pytest.mark.parametrize('n', range(1, 7))
 def test_dice_init_deterministic(n):
-  from context import dice
+  import dice
   d = dice.Dice(n)
   assert d.value == n
 
 @pytest.mark.parametrize('n', [-42, -1, 0, 7, 42])
 def test_dice_init_invalid(n):
-  from context import dice
+  import dice
   with pytest.raises(ValueError):
     dice.Dice(n)
 
 def test_dice_init_rng():
-  from context import dice
+  import dice
   n = random.Random(0).randint(1, 6)
   d = dice.Dice(rng = random.Random(0))
   assert d.value == n
 
 @pytest.mark.parametrize('n', range(1, 7))
 def test_dice_repr(n):
-  from context import dice
+  import dice
   d = dice.Dice()
   d.value = n
   assert str(d) == str(n)
 
 def test_dice_fairness():
-  from context import dice
+  import dice
   results = []
   d = dice.Dice(rng = random.Random(42))
   for _ in range(10_000):
